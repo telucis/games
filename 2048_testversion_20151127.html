@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+<head>
+	<meta charset='utf-8'>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport" content="initial-scale=1,maximum-scale=3,minimum-scale=1,user-scalable=no">
+	<meta name="description" content="">
+	<meta name='keyword' content="">
+	<meta name="author" content="">
+	<meta name="robots" content="">
+	<title>test</title>
+	<style type="text/css">
+		body,div,span,header,footer,article,section,aside,ul,li,a{padding: 0;margin: 0;font-family: '微软雅黑';
+			-wekbit-box-sizing:border-box;
+			-moz-box-sizing:border-box;
+			box-sizing:border-box;}
+		#box{position: relative;height: 500px; width: 500px;}
+		.little-box{position: absolute;border: 1px solid #fff;width: 100px;height: 100px;border-radius: 10px;background: #eee;
+			color: #fff;font-size: 60px;line-height: 100px;text-align: center;font-weight: 900;}
+		span{border: 1px solid #ccc; border-radius: 5px; width: 150px;padding: 10px;display: block;margin:0 auto;cursor: pointer;font-size: 20px;text-align: center;margin-top: 10px;}
+	</style>
+</head>
+<body>
+<span id="obtn">click me!</span><span id='score'></span>
+<div id="box"></div>
+<script type="text/javascript" src="support.js"></script>
+<script type="text/javascript">
+window.onload=function(){ 
+	var obtn=document.getElementById('obtn');
+	var box=document.getElementById('box');
+	var score=document.getElementById('score');
+	var arr = [	[0,0,0,0],
+				[0,0,0,0],
+				[0,0,0,0],
+				[0,0,0,0] ]
+	obtn.onclick=function(){ 
+		initial();
+	}
+	initial();
+	function initial(){ 
+		//清空
+		box.innerHTML='';
+		for(var i=0;i<arr.length;i++){ 
+			for(var j=0;j<arr[i].length;j++){ 
+				arr[i][j]=0;
+			}
+		}
+		//生成随机块
+		randomBox();
+		randomBox();
+		getScore();
+	}
+	function gameover(){ 
+		for(var i=0;i<arr.length;i++){ 
+			for(var j=0;j<arr[i].length;j++){ 
+				if(arr[i][j]==0){ 
+					return false;
+				}
+			}
+		}
+		alert('game over!');
+		return true;
+	}
+	function randomBox(){ 
+		do{ 
+			var ox=Math.floor(Math.random()*4);
+			var oy=Math.floor(Math.random()*4);
+		}while(arr[ox][oy]!=0)
+		arr[ox][oy]=Math.floor(Math.random()*2+1)*2;
+		var obox=document.createElement('div');
+		obox.innerHTML=arr[ox][oy];
+		obox.style.left=oy*100+'px';
+		obox.style.top=ox*100+'px';
+		obox.className='little-box';
+		box.appendChild(obox);
+	}
+	function getScore(){ 
+		var currentScore=0;
+		for(var i=0;i<arr.length;i++){ 
+			for(var j=0;j<arr[i].length;j++){ 
+				currentScore+=arr[i][j]*100;
+			}
+		}
+		score.innerHTML=currentScore;
+	}
+	function printBox(){ 
+		box.innerHTML='';
+		for(var i=0;i<arr.length;i++){ 
+			for(var j=0;j<arr[i].length;j++){
+				if(arr[i][j]!=0){ 
+					var obox=document.createElement('div');
+					obox.innerHTML=arr[i][j];
+					obox.style.left=j*100+'px';
+					obox.style.top=i*100+'px';
+					obox.className='little-box';
+					box.appendChild(obox);
+				}
+			}
+		}
+	}
+	document.body.onkeydown=function(e){ 
+		switch(e.keyCode){ 
+			case 37:
+				moveLeft();
+				break;
+			case 38:
+				moveUp();
+				break;
+			case 39:
+				moveRight();
+				break;
+			case 40:
+				moveDown();
+				break;
+			default:
+				break;
+		}
+	}
+	function canMoveLeft(i,j){ 
+		if(j-1>=0){ 
+			if(arr[i][j-1]==0 || (arr[i][j-1]==arr[i][j])){ 
+				return true;
+			}
+		}
+		return false;
+	}
+	function canMoveRight(i,j){ 
+		if(j+1<=3){ 
+			if(arr[i][j+1]==0 || (arr[i][j+1]==arr[i][j])){ 
+				return true;
+			}
+		}
+	}
+	function canMoveUp(i,j){ 
+		if(i-1>=0){ 
+			if(arr[i-1][j]==0 || (arr[i-1][j]==arr[i][j])){ 
+				return true;
+			}
+		}
+	}
+	function canMoveDown(i,j){ 
+		if(i+1<=3){ 
+			if(arr[i+1][j]==0 || (arr[i+1][j]==arr[i][j])){ 
+				return true;
+			}
+		}
+	}
+	function moveLeft(){ 
+		for(var i=0;i<arr.length;i++){ 
+			for(var j=1;j<arr[i].length;j++){
+				canMoveLeft(i,j) && (arr[i][j-1]+=arr[i][j],arr[i][j]=0);
+				canMoveLeft(i,j-1) && (arr[i][j-2]+=arr[i][j-1],arr[i][j-1]=0);
+				canMoveLeft(i,j-2) && (arr[i][j-3]+=arr[i][j-2],arr[i][j-2]=0);
+			}
+		}
+		printBox();
+		if(gameover())return false;
+		randomBox();
+		getScore();
+	}
+	function moveUp(){ 
+		for(var i=0;i<arr.length;i++){ 
+			for(var j=0;j<arr[i].length;j++){
+				canMoveUp(i,j) && (arr[i-1][j]+=arr[i][j],arr[i][j]=0);
+				canMoveUp(i-1,j) && (arr[i-2][j]+=arr[i-1][j],arr[i-1][j]=0);
+				canMoveUp(i-2,j) && (arr[i-3][j]+=arr[i-2][j],arr[i-2][j]=0);
+			}
+		}
+		printBox();
+		if(gameover())return false;
+		randomBox();
+		getScore();
+	}
+	function moveRight(){ 
+		for(var i=0;i<arr.length;i++){ 
+			for(var j=arr[i].length-1;j>=0;j--){
+				canMoveRight(i,j) && (arr[i][j+1]+=arr[i][j],arr[i][j]=0);
+				canMoveRight(i,j+1) && (arr[i][j+2]+=arr[i][j+1],arr[i][j+1]=0);
+				canMoveRight(i,j+2) && (arr[i][j+3]+=arr[i][j+2],arr[i][j+2]=0);
+			}
+		}
+		printBox();
+		if(gameover())return false;
+		randomBox();
+		getScore();
+	}
+	function moveDown(){ 
+		for(var i=0;i<arr.length;i++){ 
+			for(var j=0;j<arr[i].length;j++){
+				canMoveDown(i,j) && (arr[i+1][j]+=arr[i][j],arr[i][j]=0);
+				canMoveDown(i+1,j) && (arr[i+2][j]+=arr[i+1][j],arr[i+1][j]=0);
+				canMoveDown(i+2,j) && (arr[i+3][j]+=arr[i+2][j],arr[i+2][j]=0);
+			}
+		}
+		printBox();
+		if(gameover())return false;
+		randomBox();
+		getScore();
+	}
+}
+</script>
+</body>
+</html>
